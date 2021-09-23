@@ -171,9 +171,7 @@ class RTStereoNet(nn.Module):
         yy = yy.view(1, 1, H, W).repeat(B, 1, 1, 1)
         grid = torch.cat((xx, yy), 1).float()
 
-        if x.is_cuda:
-            vgrid = grid.cuda()
-        #vgrid = grid
+        vgrid = grid
         vgrid[:,:1,:,:] = vgrid[:,:1,:,:] - disp
 
         # scale grid to [-1,1]
@@ -188,7 +186,7 @@ class RTStereoNet(nn.Module):
     def _build_volume_2d(self, feat_l, feat_r, maxdisp, stride=1):
         assert maxdisp % stride == 0  # Assume maxdisp is multiple of stride
         b,c,h,w = feat_l.size()
-        cost = torch.zeros(b, 1, maxdisp//stride, h, w).cuda().requires_grad_(False)
+        cost = torch.zeros(b, 1, maxdisp//stride, h, w)#.requires_grad_(False)
         for i in range(0, maxdisp, stride):
             if i > 0:
                 cost[:, :, i//stride, :, i:] = torch.norm(feat_l[:, :, :, i:] - feat_r[:, :, :, :-i], p=1, dim = 1,keepdim=True)
@@ -200,7 +198,7 @@ class RTStereoNet(nn.Module):
         b,c,h,w = feat_l.size()
         batch_disp = disp[:,None,:,:,:].repeat(1, maxdisp*2-1, 1, 1, 1).view(-1,1,h,w)
         temp_array = np.tile(np.array(range(-maxdisp + 1, maxdisp)), b) * stride
-        batch_shift = torch.Tensor(np.reshape(temp_array, [len(temp_array), 1, 1, 1])).cuda().requires_grad_(False)
+        batch_shift = torch.Tensor(np.reshape(temp_array, [len(temp_array), 1, 1, 1]))#.cuda().requires_grad_(False)
         batch_disp = batch_disp - batch_shift
         batch_feat_l = feat_l[:,None,:,:,:].repeat(1,maxdisp*2-1, 1, 1, 1).view(-1,c,h,w)
         batch_feat_r = feat_r[:,None,:,:,:].repeat(1,maxdisp*2-1, 1, 1, 1).view(-1,c,h,w)
@@ -244,7 +242,7 @@ class RTStereoNet(nn.Module):
 class disparityregression2(nn.Module):
     def __init__(self, start, end, stride=1):
         super(disparityregression2, self).__init__()
-        self.disp = torch.arange(start*stride, end*stride, stride).view(1, -1, 1, 1).type(torch.FloatTensor).cuda().requires_grad_(False)
+        self.disp = torch.arange(start*stride, end*stride, stride).view(1, -1, 1, 1).type(torch.FloatTensor)#.cuda().requires_grad_(False)
     def forward(self, x):
         out = torch.sum(x * self.disp, 1, keepdim=True)
         return out

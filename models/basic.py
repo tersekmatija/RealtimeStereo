@@ -63,7 +63,7 @@ class PSMNet(nn.Module):
         targetimg_fea  = self.feature_extraction(right)
  
         #matching
-        cost = Variable(torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1]*2, self.maxdisp/4,  refimg_fea.size()[2],  refimg_fea.size()[3]).zero_(), volatile= not self.training).cuda()
+        cost = Variable(torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1]*2, self.maxdisp/4,  refimg_fea.size()[2],  refimg_fea.size()[3]).zero_(), volatile= not self.training)
 
         for i in range(self.maxdisp/4):
             if i > 0 :
