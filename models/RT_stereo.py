@@ -5,6 +5,7 @@ import torch.utils.data
 import torch.nn.functional as F
 import math
 import numpy as np
+from grid_sample import GridSample
 
 norm_layer2d = nn.BatchNorm2d 
 norm_layer3d = nn.BatchNorm3d 
@@ -134,6 +135,7 @@ class RTStereoNet(nn.Module):
         self.feature_extraction = feature_extraction()
         self.maxdisp = maxdisp
         self.volume_postprocess = []
+        self.grid_sample = GridSample()
         
         layer_setting = [8,4,4]
         for i in range(3):
@@ -179,7 +181,7 @@ class RTStereoNet(nn.Module):
         vgrid[:, 1, :, :] = 2.0 * vgrid[:, 1, :, :] / max(H - 1, 1) - 1.0
 
         vgrid = vgrid.permute(0, 2, 3, 1)
-        output = nn.functional.grid_sample(x, vgrid)
+        output = self.grid_sample.apply(x, vgrid)
         return output
 
 
