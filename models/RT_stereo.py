@@ -7,6 +7,7 @@ import torch.utils.data
 import torch.nn.functional as F
 import math
 import numpy as np
+from utils.grid_sample import GridSample
 
 norm_layer2d = nn.BatchNorm2d 
 norm_layer3d = nn.BatchNorm3d 
@@ -249,13 +250,3 @@ class disparityregression2(nn.Module):
     def forward(self, x):
         out = torch.sum(x * self.disp, 1, keepdim=True)
         return out
-
-
-class GridSample(torch.autograd.Function):
-    @staticmethod
-    def symbolic(g, x, grid):
-        return g.op('GridSample', x, grid)
-
-    @staticmethod
-    def forward(self, x, grid):
-        return F.grid_sample(x, grid, 'bilinear', 'zeros', True)
